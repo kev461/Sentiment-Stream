@@ -22,15 +22,21 @@ pipeline {
                     // Creamos el directorio de logs de forma segura
                     bat 'if not exist outputs\\logs mkdir outputs\\logs'
                     
-                    // Usamos writeFile para evitar problemas con caracteres especiales (como & o ^) en los tokens
+                    // Limpiamos posibles espacios o saltos de línea de las credenciales de Jenkins
+                    def mongoUri = env.MONGO_URI.trim()
+                    def mongoDb = env.MONGO_DB.trim()
+                    def mongoColl = env.MONGO_COLECCION.trim()
+                    def ngrokToken = env.NGROK_AUTHTOKEN.trim()
+                    
+                    // Usamos writeFile para evitar problemas con caracteres especiales
                     def envContent = """
-MONGO_URI=${MONGO_URI}
-MONGO_DB=${MONGO_DB}
-MONGO_COLECCION=${MONGO_COLECCION}
-NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+MONGO_URI=${mongoUri}
+MONGO_DB=${mongoDb}
+MONGO_COLECCION=${mongoColl}
+NGROK_AUTHTOKEN=${ngrokToken}
 """.trim()
                     writeFile file: '.env', text: envContent
-                    echo "Archivo .env creado exitosamente."
+                    echo "Archivo .env creado y limpiado exitosamente."
                 }
             }
         }
