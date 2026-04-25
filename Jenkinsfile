@@ -18,14 +18,20 @@ pipeline {
 
         stage('Setup Environment') {
             steps {
-                bat '''
-                if not exist outputs\\logs mkdir outputs\\logs
-                :: Creamos el archivo .env desde los secretos de Jenkins (vital para Docker y Gitignore)
-                echo MONGO_URI=%MONGO_URI% > .env
-                echo MONGO_DB=%MONGO_DB% >> .env
-                echo MONGO_COLECCION=%MONGO_COLECCION% >> .env
-                echo NGROK_AUTHTOKEN=%NGROK_AUTHTOKEN% >> .env
-                '''
+                script {
+                    // Creamos el directorio de logs de forma segura
+                    bat 'if not exist outputs\\logs mkdir outputs\\logs'
+                    
+                    // Usamos writeFile para evitar problemas con caracteres especiales (como & o ^) en los tokens
+                    def envContent = """
+MONGO_URI=${MONGO_URI}
+MONGO_DB=${MONGO_DB}
+MONGO_COLECCION=${MONGO_COLECCION}
+NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+""".trim()
+                    writeFile file: '.env', text: envContent
+                    echo "Archivo .env creado exitosamente."
+                }
             }
         }
 
@@ -92,8 +98,12 @@ pipeline {
 
         stage('Exponer URL') {
             steps {
-                echo "--- URL PÚBLICA DE NGROK ---"
+                echo "--- REVISANDO ESTADO DE NGROK ---"
+                // Esperamos un poco a que ngrok intente conectar
+                bat 'ping 127.0.0.1 -n 5 >nul'
                 bat 'docker logs sentiment_ngrok'
+                echo "--- API DE TÚNELES (JSON) ---"
+                bat 'curl -s http://localhost:4040/api/tunnels'
             }
         }
 
