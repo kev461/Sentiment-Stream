@@ -13,7 +13,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Descarga del código desde GitHub
-                git branch: 'main', url: 'https://github.com/tu-usuario/SentimentStream.git'
+                git branch: 'main', url: 'https://github.com/kev461/Sentiment-Stream.git'
             }
         }
 
