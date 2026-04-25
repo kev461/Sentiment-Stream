@@ -1,0 +1,24 @@
+# Credenciales
+.env
+
+# Hadoop binarios Windows
+hadoop/
+apiflask/hadoop
+
+# Modelo entrenado y checkpoint (se regeneran)
+outputs/checkpoint
+outputs/modelo_sentimientos
+outputs/confusion_matrix.png
+
+# Lotes generados (se regeneran)
+inputs/lotes/
+inputs/stream/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Editor
+.idea/
+.vscode/
