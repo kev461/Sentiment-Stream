@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}SentimentStream — Inicio{% endblock %}
+
+{% block content %}
+
+<!-- Main -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card p-4 p-md-5">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <p class="mb-2"
+                        style="color: var(--abyss-accent2); font-family: 'Space Mono', monospace; font-size: 0.8rem; letter-spacing: 0.1em;">
+                        BIG DATA PIPELINE
+                    </p>
+                    <h1
+                        style="font-family: 'Space Mono', monospace; font-size: 2rem; font-weight: 700; color: var(--abyss-text); line-height: 1.3;">
+                        Sentiment<span style="color: var(--abyss-accent);">Stream</span>
+                    </h1>
+                    <p class="mt-3 mb-4" style="color: var(--abyss-muted); line-height: 1.8; max-width: 580px;">
+                        Pipeline de análisis de sentimientos de extremo a extremo. Procesa comentarios en tiempo real
+                        mediante Spark Structured Streaming, clasifica su sentimiento con Naive Bayes y expone
+                        los resultados a través de una API REST conectada a MongoDB Atlas.
+                    </p>
+                    <a href="{{ url_for('predicciones') }}" class="btn btn-primary px-4 py-2">
+                        <i class="bi bi-chat-dots me-2"></i> Ir a Predicciones
+                    </a>
+                </div>
+                <div class="col-md-4 d-none d-md-flex justify-content-end align-items-center">
+                    <div
+                        style="font-family: 'Space Mono', monospace; font-size: 0.75rem; color: var(--abyss-border); line-height: 2; text-align: right;">
+                        <div style="color: var(--abyss-accent2);">CSV</div>
+                        <div style="color: white">↓</div>
+                        <div style="color: var(--abyss-accent);">PySpark</div>
+                        <div style="color: white">↓</div>
+                        <div style="color: var(--abyss-accent2);">Naive Bayes</div>
+                        <div style="color: white">↓</div>
+                        <div style="color: var(--abyss-accent);">MongoDB</div>
+                        <div style="color: white">↓</div>
+                        <div style="color: var(--abyss-accent2);">API REST</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Secciones -->
+<div class="row g-4 mb-5">
+    <div class="col-12">
+        <p
+            style="font-family: 'Space Mono', monospace; font-size: 0.78rem; color: var(--abyss-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1rem;">
+            Páginas disponibles
+        </p>
+    </div>
+
+    <!-- Card Predicciones -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-chat-dots"></i> /predicciones
+            </div>
+            <div class="card-body p-4">
+                <h5 class="mb-3" style="color: var(--abyss-text);">Predicciones y análisis</h5>
+                <p style="color: var(--abyss-muted); line-height: 1.8; font-size: 0.9rem;">
+                    Consulta el historial de predicciones procesadas por el stream. Filtra por sentimiento
+                    y visualiza el texto original junto a la predicción del modelo y su nivel de confianza.
+                </p>
+                <hr style="border-color: var(--abyss-border);">
+                <p style="color: var(--abyss-muted); line-height: 1.8; font-size: 0.9rem;">
+                    También puedes ingresar un texto nuevo y obtener una predicción en tiempo real
+                    directamente desde el modelo entrenado.
+                </p>
+                <div class="mt-3 d-flex gap-2">
+                    <span
+                        style="font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--abyss-accent2); background: rgba(0,188,212,0.1); border: 1px solid rgba(0,188,212,0.2); padding: 3px 10px; border-radius: 20px;">
+                        GET /sentiments
+                    </span>
+                    <span
+                        style="font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--abyss-accent); background: rgba(30,136,229,0.1); border: 1px solid rgba(30,136,229,0.2); padding: 3px 10px; border-radius: 20px;">
+                        POST /predict
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card Estadísticas -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-bar-chart"></i> /stats
+            </div>
+            <div class="card-body p-4">
+                <h5 class="mb-3" style="color: var(--abyss-text);">Estadísticas y Dashboard</h5>
+                <p style="color: var(--abyss-muted); line-height: 1.8; font-size: 0.9rem;">
+                    Visualiza la distribución de sentimientos y métricas del modelo. Ahora incluye un 
+                    <b>Dashboard de Power BI</b> integrado al final para análisis avanzado.
+                </p>
+                <hr style="border-color: var(--abyss-border);">
+                <a href="{{ url_for('stats') }}" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-eye me-2"></i> Ver Estadísticas y Power BI
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stack tecnológico -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-stack"></i> Stack tecnológico
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    {% set stack = [
+                    ("bi-lightning-charge", "PySpark", "Procesamiento distribuido y pipeline de ML"),
+                    ("bi-database", "MongoDB Atlas", "Persistencia de predicciones en la nube"),
+                    ("bi-server", "Flask", "API REST para exponer los datos"),
+                    ("bi-boxes", "Docker", "Orquestación de servicios"),
+                    ("bi-gear", "Jenkins", "Pipeline de CI/CD"),
+                    ("bi-bar-chart-line", "Power BI", "Dashboard de visualización")
+                    ] %}
+                    {% for icon, nombre, descripcion in stack %}
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <div
+                            style="background: var(--abyss-nav); border: 1px solid var(--abyss-border); border-radius: 8px; padding: 1rem; text-align: center;">
+                            <i class="bi {{ icon }}" style="font-size: 1.4rem; color: var(--abyss-accent2);"></i>
+                            <p
+                                style="font-family: 'Space Mono', monospace; font-size: 0.75rem; color: var(--abyss-text); margin: 0.5rem 0 0.25rem;">
+                                {{ nombre }}</p>
+                            <p style="font-size: 0.72rem; color: var(--abyss-muted); margin: 0;">{{ descripcion }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

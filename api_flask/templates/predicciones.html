@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}SentimentStream — Predicciones{% endblock %}
+
+{% block content %}
+
+<!-- Tabs centradas -->
+<div class="row justify-content-center mb-4">
+    <div class="col" style="max-width: 60%;">
+        <ul class="nav nav-tabs" id="predTabs" style="border-bottom: 1px solid var(--abyss-border);">
+            <li class="nav-item">
+                <button class="nav-link active" id="historial-tab" data-bs-toggle="tab" data-bs-target="#historial"
+                    style="font-family: 'Space Mono', monospace; font-size: 0.8rem; color: var(--abyss-muted); border: none; background: none; padding: 0.6rem 1.2rem;">
+                    <i class="bi bi-clock-history me-2"></i>Historial
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="chat-tab" data-bs-toggle="tab" data-bs-target="#chat"
+                    style="font-family: 'Space Mono', monospace; font-size: 0.8rem; color: var(--abyss-muted); border: none; background: none; padding: 0.6rem 1.2rem;">
+                    <i class="bi bi-chat-dots me-2"></i>Predecir texto
+                </button>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="tab-content">
+
+    <!-- ── TAB HISTORIAL ── -->
+    <div class="tab-pane fade show active" id="historial">
+        <div class="row justify-content-center">
+            <div class="col" style="max-width: 60%;">
+
+                <!-- Filtros -->
+                <div class="d-flex gap-2 mb-3">
+                    <button class="btn-filtro active" data-filtro="todos" onclick="filtrar(this)">Todos</button>
+                    <button class="btn-filtro" data-filtro="positivo" onclick="filtrar(this)">Positivo</button>
+                    <button class="btn-filtro" data-filtro="negativo" onclick="filtrar(this)">Negativo</button>
+                    <button class="btn-filtro" data-filtro="neutral" onclick="filtrar(this)">Neutral</button>
+                </div>
+
+                <!-- Tabla -->
+                <div class="card">
+                    <div class="card-header d-flex align-items-center gap-2">
+                        <i class="bi bi-table"></i> Predicciones del stream
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table mb-0" id="tablaHistorial">
+                            <thead>
+                                <tr>
+                                    <th>Texto</th>
+                                    <th>Etiqueta real</th>
+                                    <th>Predicción</th>
+                                    <th>Confianza</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in predicciones %}
+                                <tr data-sentimiento="{{ item.prediccion_texto }}">
+                                    <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        {{ item.texto }}
+                                    </td>
+                                    <td>
+                                        {% if item.etiqueta_original %}
+                                            <span class="badge-{{ item.etiqueta_original }}">{{ item.etiqueta_original }}</span>
+                                        {% else %}
+                                            <span style="color: var(--abyss-muted); font-size: 0.8rem;">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge-{{ item.prediccion_texto }}">{{ item.prediccion_texto }}</span>
+                                    </td>
+                                    <td style="font-family: 'Space Mono', monospace; font-size: 0.82rem;">
+                                        {{ "%.2f"|format(item.confianza * 100) }}%
+                                    </td>
+                                    <td style="color: var(--abyss-muted); font-size: 0.82rem;">
+                                        {{ item.timestamp.strftime('%d/%m/%Y %H:%M') if item.timestamp else '—' }}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" style="text-align: center; color: var(--abyss-muted); padding: 2rem;">
+                                        No hay predicciones aún. Ejecuta el stream para ver resultados.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ── TAB CHAT ── -->
+    <div class="tab-pane fade" id="chat">
+        <div class="row justify-content-center">
+            <div class="col" style="max-width: 60%;">
+
+                <!-- Área de respuesta -->
+                <div id="chatRespuesta" style="min-height: 300px; display: flex; align-items: center; justify-content: center;">
+                    <p style="color: var(--abyss-muted); font-family: 'Space Mono', monospace; font-size: 0.82rem;">
+                        Escribe un comentario para analizar su sentimiento...
+                    </p>
+                </div>
+
+                <!-- Input -->
+                <div class="card mt-3">
+                    <div class="card-body p-3">
+                        <div class="d-flex gap-2">
+                            <input type="text" id="chatInput" class="form-control"
+                                placeholder="Escribe un comentario..."
+                                onkeydown="if(event.key==='Enter') enviarPrediccion()">
+                            <button class="btn btn-primary px-3" onclick="enviarPrediccion()">
+                                <i class="bi bi-send"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Tabs */
+    .nav-link.active {
+        color: var(--abyss-accent2) !important;
+        border-bottom: 2px solid var(--abyss-accent2) !important;
+    }
+
+    /* Botones filtro */
+    .btn-filtro {
+        background: var(--abyss-nav);
+        border: 1px solid var(--abyss-border);
+        color: var(--abyss-muted);
+        border-radius: 20px;
+        padding: 3px 14px;
+        font-size: 0.78rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-filtro:hover,
+    .btn-filtro.active {
+        background: var(--abyss-border);
+        color: var(--abyss-text);
+        border-color: var(--abyss-accent2);
+    }
+
+    /* Resultado chat */
+    .chat-resultado {
+        text-align: center;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .chat-resultado .texto-analizado {
+        color: var(--abyss-muted);
+        font-size: 0.88rem;
+        margin-bottom: 1rem;
+        font-style: italic;
+    }
+
+    .chat-resultado .sentimiento {
+        font-family: 'Space Mono', monospace;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .chat-resultado .confianza {
+        color: var(--abyss-muted);
+        font-size: 0.85rem;
+    }
+
+    .sentimiento-positivo { color: var(--abyss-success); }
+    .sentimiento-negativo { color: var(--abyss-danger); }
+    .sentimiento-neutral  { color: var(--abyss-warning); }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // ── Filtro historial ──
+    function filtrar(btn) {
+        document.querySelectorAll('.btn-filtro').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const filtro = btn.dataset.filtro;
+        document.querySelectorAll('#tablaHistorial tbody tr').forEach(tr => {
+            tr.style.display = (filtro === 'todos' || tr.dataset.sentimiento === filtro) ? '' : 'none';
+        });
+    }
+
+    // ── Predicción chat ──
+    async function enviarPrediccion() {
+        const input = document.getElementById('chatInput');
+        const texto = input.value.trim();
+        if (!texto) return;
+
+        const respuesta = document.getElementById('chatRespuesta');
+        respuesta.innerHTML = `<p style="color: var(--abyss-muted); font-family: 'Space Mono', monospace; font-size: 0.82rem;">Analizando...</p>`;
+
+        try {
+            const res = await fetch('/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ texto })
+            });
+            const data = await res.json();
+
+            const clase = `sentimiento-${data.prediccion}`;
+            respuesta.innerHTML = `
+                <div class="chat-resultado">
+                    <p class="texto-analizado">"${texto}"</p>
+                    <p class="sentimiento ${clase}">${data.prediccion.toUpperCase()}</p>
+                    <p class="confianza">Confianza: ${(data.confianza * 100).toFixed(2)}%</p>
+                </div>`;
+
+            input.value = '';
+        } catch (e) {
+            respuesta.innerHTML = `<p style="color: var(--abyss-danger); font-family: 'Space Mono', monospace; font-size: 0.82rem;">Error al conectar con la API.</p>`;
+        }
+    }
+</script>
+{% endblock %}

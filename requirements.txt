@@ -1,0 +1,9 @@
+pyspark==3.5.3
+pymongo
+python-dotenv
+flask
+flask-cors
+numpy
+scikit-learn
+seaborn
+matplotlib

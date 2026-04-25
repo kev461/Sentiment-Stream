@@ -1,0 +1,76 @@
+services:
+  # Servicio 0: Preparación (Entrena el modelo y genera lotes si no existen)
+  preparador:
+    build: .
+    container_name: sentiment_preparador
+    command: python main.py
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+
+  # Servicio 1: Simulación del envío de datos
+  simulador:
+    build: .
+    container_name: sentiment_simulator
+    command: python modulos_stream/simulacion_stream.py
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      preparador:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  # Servicio 2: Procesamiento con Spark Streaming
+  spark-processor:
+    build: .
+    container_name: sentiment_spark
+    command: python modulos_stream/spark_stream.py
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      preparador:
+        condition: service_completed_successfully
+      simulador:
+        condition: service_started
+    restart: unless-stopped
+
+  # Servicio 3: Interfaz Web y API Flask
+  api-web:
+    build: .
+    container_name: sentiment_api
+    command: python api_flask/app.py
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    # La API puede arrancar en paralelo, pero idealmente espera al modelo
+    depends_on:
+      preparador:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  # Servicio 4: Túnel de exposición externa (Bono)
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: sentiment_ngrok
+    ports:
+      - "4040:4040"
+    command:
+      - http
+      - api-web:5000
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+    depends_on:
+      - api-web
+    restart: unless-stopped
+
+networks:
+  default:
+    name: sentiment_network

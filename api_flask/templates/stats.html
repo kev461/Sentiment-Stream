@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block title %}SentimentStream — Estadísticas{% endblock %}
+
+{% block content %}
+
+{% if stats %}
+
+<!-- ── Tarjetas métricas ── -->
+<div class="row justify-content-center mb-4">
+    <div class="col" style="max-width: 60%;">
+        <div class="row g-3">
+
+            <div class="col-4">
+                <div class="card text-center p-3">
+                    <p
+                        style="font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--abyss-muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.5rem;">
+                        Total predicciones
+                    </p>
+                    <p
+                        style="font-family: 'Space Mono', monospace; font-size: 2rem; font-weight: 700; color: var(--abyss-accent2); margin: 0;">
+                        {{ stats.total }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-4">
+                <div class="card text-center p-3">
+                    <p
+                        style="font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--abyss-muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.5rem;">
+                        Accuracy
+                    </p>
+                    <p
+                        style="font-family: 'Space Mono', monospace; font-size: 2rem; font-weight: 700; color: var(--abyss-success); margin: 0;">
+                        {{ "%.1f"|format(stats.accuracy * 100) }}%
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-4">
+                <div class="card text-center p-3">
+                    <p
+                        style="font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--abyss-muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.5rem;">
+                        Clase dominante
+                    </p>
+                    <p style="font-family: 'Space Mono', monospace; font-size: 1.4rem; font-weight: 700; margin: 0;"
+                        class="sentimiento-{{ stats.distribucion | dictsort | sort(attribute='1') | last | first }}">
+                        {{ stats.distribucion | dictsort | sort(attribute='1') | last | first }}
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ── Distribución + Matriz ── -->
+<div class="row justify-content-center g-4">
+    <div class="col" style="max-width: 60%;">
+        <div class="row g-4">
+
+            <!-- Distribución -->
+            <div class="col-md-5">
+                <div class="card h-100">
+                    <div class="card-header d-flex align-items-center gap-2">
+                        <i class="bi bi-pie-chart"></i> Distribución
+                    </div>
+                    <div class="card-body p-4">
+                        {% set total = stats.total %}
+                        {% for sentimiento, cantidad in stats.distribucion.items() %}
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="badge-{{ sentimiento }}">{{ sentimiento }}</span>
+                                <span
+                                    style="font-family: 'Space Mono', monospace; font-size: 0.82rem; color: var(--abyss-muted);">
+                                    {{ cantidad }} — {{ "%.1f"|format(cantidad / total * 100) }}%
+                                </span>
+                            </div>
+                            <div style="background: var(--abyss-border); border-radius: 4px; height: 6px;">
+                                <div style="width: {{ (cantidad / total * 100) | round }}%;
+                                    height: 6px;
+                                    border-radius: 4px;
+                                    background: {% if sentimiento == 'positivo' %}var(--abyss-success)
+                                               {% elif sentimiento == 'negativo' %}var(--abyss-danger)
+                                               {% else %}var(--abyss-warning){% endif %};"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Matriz de confusión -->
+            <div class="col-md-7">
+                <div class="card h-100">
+                    <div class="card-header d-flex align-items-center gap-2">
+                        <i class="bi bi-grid-3x3"></i> Matriz de confusión
+                    </div>
+                    <div class="card-body p-3 d-flex align-items-center justify-content-center">
+                        <img src="{{ stats.matriz_imagen }}" alt="Matriz de confusión"
+                            style="max-width: 100%; border-radius: 6px;">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ── Dashboard Power BI (Capturas para Entrega Académica) ── -->
+<div class="row justify-content-center g-4 mt-2">
+    <div class="col" style="max-width: 60%;">
+        <div class="card" style="border-color: var(--abyss-accent);">
+            <div class="card-header d-flex justify-content-between align-items-center" style="background: rgba(30,136,229,0.1);">
+                <span><i class="bi bi-pie-chart-fill" style="color: var(--abyss-accent);"></i> Dashboard Power BI (Integración API)</span>
+            </div>
+            <div class="card-body p-4 text-center">
+                <p style="color: var(--abyss-muted); font-size: 0.85rem; margin-bottom: 20px;">
+                    Visualizaciones generadas en Power BI Desktop conectadas al endpoint <code style="color: var(--abyss-accent2);">/sentiments</code>.
+                </p>
+                
+                <div class="row g-3">
+                    <!-- Fila 1 -->
+                    <div class="col-md-6">
+                        <div class="pbi-img-container">
+                            <img src="{{ url_for('servir_output', filename='pbi_1.png') }}" alt="Gráfica 1" onerror="this.src='https://placehold.co/600x350/1a1a2e/4facfe?text=Visualización+1'">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="pbi-img-container">
+                            <img src="{{ url_for('servir_output', filename='pbi_2.png') }}" alt="Gráfica 2" onerror="this.src='https://placehold.co/600x350/1a1a2e/4facfe?text=Visualización+2'">
+                        </div>
+                    </div>
+                    <!-- Fila 2 -->
+                    <div class="col-md-6">
+                        <div class="pbi-img-container">
+                            <img src="{{ url_for('servir_output', filename='pbi_3.png') }}" alt="Gráfica 3" onerror="this.src='https://placehold.co/600x350/1a1a2e/4facfe?text=Visualización+3'">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="pbi-img-container">
+                            <img src="{{ url_for('servir_output', filename='pbi_4.png') }}" alt="Gráfica 4" onerror="this.src='https://placehold.co/600x350/1a1a2e/4facfe?text=Visualización+4'">
+                        </div>
+                    </div>
+                    <!-- Fila 3: La más grande -->
+                    <div class="col-md-12">
+                        <div class="pbi-img-container">
+                            <img src="{{ url_for('servir_output', filename='pbi_5.png') }}" alt="Dashboard Completo / Tabla" onerror="this.src='https://placehold.co/1200x450/1a1a2e/4facfe?text=Vista+General+del+Dashboard'">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 p-3 d-flex justify-content-between align-items-center" style="background: rgba(0,0,0,0.2); border-radius: 8px; text-align: left;">
+                    <small style="color: var(--abyss-muted);">
+                        <i class="bi bi-info-circle me-1"></i> <b>Nota:</b> El archivo <code style="color: var(--abyss-accent2);">SentimentStream.pbix</code> incluido en el repositorio está configurado para consumir datos en tiempo real desde esta API REST.
+                    </small>
+                    <a href="{{ url_for('servir_input', filename='sentiment_dashboard.pbix') }}" class="btn btn-sm btn-success px-3" download>
+                        <i class="bi bi-download me-1"></i> Descargar .pbix
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+
+<!-- Sin datos -->
+<div class="row justify-content-center">
+    <div class="col" style="max-width: 60%;">
+        <div class="card text-center p-5">
+            <i class="bi bi-bar-chart" style="font-size: 3rem; color: var(--abyss-muted);"></i>
+            <p class="mt-3"
+                style="color: var(--abyss-muted); font-family: 'Space Mono', monospace; font-size: 0.85rem;">
+                No hay datos suficientes para calcular estadísticas.<br>
+                Ejecuta el stream para generar predicciones.
+            </p>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .sentimiento-positivo {
+        color: var(--abyss-success);
+    }
+
+    .sentimiento-negativo {
+        color: var(--abyss-danger);
+    }
+
+    .sentimiento-neutral {
+        color: var(--abyss-warning);
+    }
+
+    .pbi-img-container {
+        border: 1px solid var(--abyss-border);
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--abyss-nav);
+        transition: transform 0.3s ease;
+    }
+
+    .pbi-img-container:hover {
+        transform: scale(1.02);
+        border-color: var(--abyss-accent);
+    }
+
+    .pbi-img-container img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+</style>
+{% endblock %}

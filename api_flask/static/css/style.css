@@ -1,0 +1,207 @@
+/* ── Variables Abyss ── */
+:root {
+    --abyss-bg:       #000c18;
+    --abyss-surface:  #051526;
+    --abyss-nav:      #0a1e35;
+    --abyss-border:   #0d2a47;
+    --abyss-accent:   #1e88e5;
+    --abyss-accent2:  #00bcd4;
+    --abyss-text:     #c5cdd9;
+    --abyss-muted:    #4a6080;
+    --abyss-success:  #00e676;
+    --abyss-warning:  #ffab40;
+    --abyss-danger:   #ff5252;
+}
+
+/* ── Reset ── */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--abyss-bg);
+    color: var(--abyss-text);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    min-height: 100vh;
+}
+
+/* ── Navbar ── */
+.navbar {
+    background-color: var(--abyss-nav);
+    border-bottom: 1px solid var(--abyss-border);
+    padding: 0.75rem 2rem;
+}
+
+.navbar-brand {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.1rem;
+    color: var(--abyss-accent2) !important;
+    letter-spacing: 0.05em;
+}
+
+.navbar-brand span {
+    color: var(--abyss-accent);
+}
+
+.nav-link {
+    color: var(--abyss-muted) !important;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    padding: 0.5rem 1rem !important;
+    border-radius: 6px;
+    transition: color 0.2s, background 0.2s;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: var(--abyss-text) !important;
+    background-color: var(--abyss-border);
+}
+
+.nav-link.active {
+    color: var(--abyss-accent2) !important;
+}
+
+.nav-link i {
+    margin-right: 6px;
+}
+
+/* ── Contenido principal ── */
+.main-content {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* ── Cards ── */
+.card {
+    background-color: var(--abyss-surface);
+    border: 1px solid var(--abyss-border);
+    border-radius: 10px;
+    color: var(--abyss-text);
+}
+
+.card-header {
+    background-color: var(--abyss-nav);
+    border-bottom: 1px solid var(--abyss-border);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--abyss-accent2);
+    letter-spacing: 0.05em;
+}
+
+/* ── Botones ── */
+.btn-primary {
+    background-color: var(--abyss-accent);
+    border-color: var(--abyss-accent);
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background-color: #1565c0;
+    border-color: #1565c0;
+}
+
+.btn-outline-info {
+    border-color: var(--abyss-accent2);
+    color: var(--abyss-accent2);
+}
+
+.btn-outline-info:hover {
+    background-color: var(--abyss-accent2);
+    color: var(--abyss-bg);
+}
+
+/* ── Inputs ── */
+.form-control {
+    background-color: var(--abyss-nav);
+    border: 1px solid var(--abyss-border);
+    color: var(--abyss-text);
+    border-radius: 6px;
+}
+
+.form-control:focus {
+    background-color: var(--abyss-nav);
+    border-color: var(--abyss-accent);
+    color: var(--abyss-text);
+    box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.15);
+}
+
+.form-control::placeholder {
+    color: var(--abyss-muted);
+}
+
+/* ── Tablas ── */
+.table {
+    color: var(--abyss-text);
+}
+
+.table thead th {
+    background-color: var(--abyss-nav);
+    border-color: var(--abyss-border);
+    color: var(--abyss-accent2);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.table td {
+    border-color: var(--abyss-border);
+    vertical-align: middle;
+}
+
+.table tbody tr:hover {
+    background-color: var(--abyss-nav);
+}
+
+/* ── Badges de sentimiento ── */
+.badge-positivo {
+    background-color: rgba(0, 230, 118, 0.15);
+    color: var(--abyss-success);
+    border: 1px solid rgba(0, 230, 118, 0.3);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 500;
+}
+
+.badge-negativo {
+    background-color: rgba(255, 82, 82, 0.15);
+    color: var(--abyss-danger);
+    border: 1px solid rgba(255, 82, 82, 0.3);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 500;
+}
+
+.badge-neutral {
+    background-color: rgba(255, 171, 64, 0.15);
+    color: var(--abyss-warning);
+    border: 1px solid rgba(255, 171, 64, 0.3);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 500;
+}
+
+/* ── Footer ── */
+footer {
+    border-top: 1px solid var(--abyss-border);
+    padding: 1rem 2rem;
+    color: var(--abyss-muted);
+    font-size: 0.8rem;
+    font-family: 'Space Mono', monospace;
+    text-align: center;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--abyss-bg); }
+::-webkit-scrollbar-thumb { background: var(--abyss-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--abyss-muted); }
