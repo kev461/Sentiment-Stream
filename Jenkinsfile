@@ -12,8 +12,27 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Descarga del código desde GitHub
                 git branch: 'main', url: 'https://github.com/kev461/Sentiment-Stream.git'
+            }
+        }
+
+        stage('Setup Environment') {
+            steps {
+                bat '''
+                if not exist outputs\\logs mkdir outputs\\logs
+                :: Creamos el archivo .env desde los secretos de Jenkins (vital para Docker y Gitignore)
+                echo MONGO_URI=%MONGO_URI% > .env
+                echo MONGO_DB=%MONGO_DB% >> .env
+                echo MONGO_COLECCION=%MONGO_COLECCION% >> .env
+                echo NGROK_AUTHTOKEN=%NGROK_AUTHTOKEN% >> .env
+                '''
+            }
+        }
+
+        stage('Build Image') {
+            steps {
+                // Construimos la imagen base una sola vez para usarla en pruebas y despliegue
+                bat 'docker build -t sentiment-stream-app .'
             }
         }
 
@@ -21,37 +40,32 @@ pipeline {
             steps {
                 bat '''
                 if not exist outputs\\logs mkdir outputs\\logs
-                docker run --rm -v "%WORKSPACE%:/app" python:3.11-slim ^
-                sh -c "pip install pandas pymongo && python /app/modulos_datos/verificar_dataframe.py" ^
+                docker run --rm -v "%WORKSPACE%:/app" sentiment-stream-app ^
+                python /app/modulos_datos/verificar_dataframe.py ^
                 > outputs\\logs\\dataset_test.log 2>&1
                 '''
             }
         }
 
         stage('Prueba Mongo') {
-            // Verificamos la conexión a MongoDB Atlas antes de levantar todo
             steps {
                 bat '''
                 if not exist outputs\\logs mkdir outputs\\logs
-                docker run --rm -v "%WORKSPACE%:/app" -e MONGO_URI="%MONGO_URI%" python:3.11-slim ^
-                sh -c "pip install pymongo && python /app/flujos/test_mongo.py" ^
+                docker run --rm ^
+                -e MONGO_URI="%MONGO_URI%" ^
+                -e MONGO_DB="%MONGO_DB%" ^
+                -e MONGO_COLECCION="%MONGO_COLECCION%" ^
+                sentiment-stream-app ^
+                python /app/flujos/test_mongo.py ^
                 > outputs\\logs\\test_mongo.log 2>&1
                 '''
             }
         }
 
-        stage('Build & Up Infrastructure') {
-            // Construimos y levantamos todos los servicios
+        stage('Deploy Infrastructure') {
             steps {
                 bat '''
                 if not exist outputs\\logs mkdir outputs\\logs
-                
-                :: Creamos el archivo .env para que Docker lo encuentre
-                echo MONGO_URI=%MONGO_URI% > .env
-                echo MONGO_DB=%MONGO_DB% >> .env
-                echo MONGO_COLECCION=%MONGO_COLECCION% >> .env
-                echo NGROK_AUTHTOKEN=%NGROK_AUTHTOKEN% >> .env
-                
                 docker-compose down
                 docker-compose up -d --build > outputs\\logs\\docker_compose_up.log 2>&1
                 '''
@@ -76,7 +90,7 @@ pipeline {
             }
         }
 
-        stage('Exponer URL (Bono)') {
+        stage('Exponer URL') {
             steps {
                 echo "--- URL PÚBLICA DE NGROK ---"
                 bat 'docker logs sentiment_ngrok'
