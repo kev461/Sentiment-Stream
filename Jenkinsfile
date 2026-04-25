@@ -41,9 +41,17 @@ pipeline {
         }
 
         stage('Build & Up Infrastructure') {
+            // Construimos y levantamos todos los servicios
             steps {
                 bat '''
                 if not exist outputs\\logs mkdir outputs\\logs
+                
+                :: Creamos el archivo .env para que Docker lo encuentre
+                echo MONGO_URI=%MONGO_URI% > .env
+                echo MONGO_DB=%MONGO_DB% >> .env
+                echo MONGO_COLECCION=%MONGO_COLECCION% >> .env
+                echo NGROK_AUTHTOKEN=%NGROK_AUTHTOKEN% >> .env
+                
                 docker-compose down
                 docker-compose up -d --build > outputs\\logs\\docker_compose_up.log 2>&1
                 '''
