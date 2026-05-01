@@ -16,6 +16,17 @@ pipeline {
             }
         }
 
+        stage('Limpieza de Residuales') {
+            steps {
+                // Eliminamos las carpetas dinámicas de ejecuciones anteriores para un inicio 100% limpio
+                bat '''
+                if exist inputs\\stream rmdir /s /q inputs\\stream
+                if exist inputs\\lotes rmdir /s /q inputs\\lotes
+                if exist outputs\\checkpoint rmdir /s /q outputs\\checkpoint
+                '''
+            }
+        }
+
         stage('Setup Environment') {
             steps {
                 script {
